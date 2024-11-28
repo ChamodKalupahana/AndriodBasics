@@ -1,78 +1,72 @@
-package com.example.activitylifecycle
+package com.example.testclassplan
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.activitylifecycle.ui.theme.ActivityLifecycleTheme
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import com.example.testclassplan.ui.theme.TestClassPlanTheme
+import kotlinx.serialization.Serializable
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState) // this super means that wait for onCreate to finish excuting
+        super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ActivityLifecycleTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+            TestClassPlanTheme {
+                val navController = rememberNavController()
+                NavHost(navController = navController, startDestination = ScreenA) {
+                    composable<ScreenA> {
+                        Column (modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Button(onClick = {
+                                navController.navigate(ScreenB(name = "Chamod", age = 23))
+                            }) {
+                                Text(text = "Go to Screen B")
+                            }
+                        }
+                    }
+
+                    composable<ScreenB> {
+                        val args = it.toRoute<ScreenB>()
+
+                        Column (modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Button(onClick = {
+                                navController.navigate(ScreenA)
+                            }) {
+                                Text(text = "$args.name, ${args.age} years old")
+                            }
+                        }
+                    }
                 }
             }
         }
     }
-
-    override fun onStart() {
-        super .onStart() // this ensures that onStart has finished excuting
-        println("onStart()")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        println("onResume()")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        println("onPause()")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        println("onDestroy()")
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        println("onRestart()")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        println("onStop()")
-    }
-
 }
+@Serializable
+object ScreenA
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ActivityLifecycleTheme {
-        Greeting("Android")
-    }
-}
+@Serializable
+data class ScreenB(
+    val name : String?,
+    val age: Int
+)
